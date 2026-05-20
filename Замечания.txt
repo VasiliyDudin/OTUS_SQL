@@ -1,0 +1,20 @@
+ALTER TABLE public."Orders" 
+RENAME COLUMN "Order_Number" TO "Order_ID";
+
+CREATE TABLE public."Order_Details" (
+    "Detail_ID" SERIAL PRIMARY KEY,
+    "Order_Number" INTEGER,
+    "Product_ID" INTEGER
+);
+
+
+INSERT INTO public."Order_Details" ("Order_Number", "Product_ID")
+SELECT "Order_ID", "Product_ID"
+FROM public."Orders";
+
+
+ALTER TABLE public."Orders" 
+DROP COLUMN "Product_ID";
+
+
+
