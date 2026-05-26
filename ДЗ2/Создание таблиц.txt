@@ -1,0 +1,108 @@
+CREATE TABLE IF NOT EXISTS public."Cinema"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "Name" text COLLATE pg_catalog."default" NOT NULL,
+    "Release Year" date NOT NULL,
+    "Genre" text COLLATE pg_catalog."default",
+    "Rating" numeric,
+    "Duration" integer,
+    "Description" text COLLATE pg_catalog."default",
+    CONSTRAINT "Cinema_pkey" PRIMARY KEY ("Id")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Cinema"
+    OWNER to postgres;
+
+
+
+CREATE TABLE IF NOT EXISTS public."Producers"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "First name" text COLLATE pg_catalog."default",
+    "Last name" text COLLATE pg_catalog."default" NOT NULL,
+    "Date birth" date,
+    "Nationality" text COLLATE pg_catalog."default",
+    CONSTRAINT "Producers_pkey" PRIMARY KEY ("Id")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Producers"
+    OWNER to postgres;
+
+
+
+CREATE TABLE IF NOT EXISTS public."Actors"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "First name" text COLLATE pg_catalog."default",
+    "Last name" text COLLATE pg_catalog."default" NOT NULL,
+    "Date birth" date,
+    "Nationality" text COLLATE pg_catalog."default",
+    CONSTRAINT "Actors_pkey" PRIMARY KEY ("Id")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Actors"
+    OWNER to postgres;
+
+
+
+CREATE TABLE IF NOT EXISTS public."Orders"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "Client_Id" integer NOT NULL,
+    "Cinema_Id" integer NOT NULL,
+    "Rent date" date NOT NULL,
+    "Return date" date,
+    CONSTRAINT "Orders_pkey" PRIMARY KEY ("Id")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Orders"
+    OWNER to postgres;
+
+
+
+CREATE TABLE IF NOT EXISTS public."Clients"
+(
+    "Id" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "First name" text COLLATE pg_catalog."default",
+    "Last name" text COLLATE pg_catalog."default" NOT NULL,
+    "E-mail" text COLLATE pg_catalog."default",
+    "Phone" text COLLATE pg_catalog."default",
+    "Address" text COLLATE pg_catalog."default"
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Clients"
+    OWNER to postgres;
+
+
+
+CREATE TABLE IF NOT EXISTS Cinema_Producers (
+    Cinema_Id INTEGER REFERENCES public."Cinema"("Id") ON DELETE CASCADE,
+    Producer_Id INTEGER REFERENCES public."Producers"("Id") ON DELETE CASCADE,
+    PRIMARY KEY (Cinema_Id, Producer_Id)
+);
+
+
+
+CREATE TABLE IF NOT EXISTS Cinema_Actors (
+    Cinema_Id INTEGER REFERENCES public."Cinema"("Id") ON DELETE CASCADE,
+    Actor_Id INTEGER REFERENCES public."Actors"("Id") ON DELETE CASCADE,
+    PRIMARY KEY (Cinema_Id, Actor_Id)
+);
+
+
+
+
+
+CREATE INDEX idx_orders_clients_id ON public."Orders"("Client_Id");
+CREATE INDEX idx_orders_movie_id ON public."Orders"("Client_Id");
+CREATE INDEX idx_clients_email ON public."Clients"("E-mail");
