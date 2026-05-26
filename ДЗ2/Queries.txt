@@ -1,0 +1,23 @@
+SELECT "Id", "First name", "Last name", "Date birth", "Nationality"	--запрос, который выводит всех актеров
+FROM public."Actors";
+
+
+SELECT "Id", "Name", "Release Year", "Genre", "Rating", "Duration", "Description"	--запрос, который выводит все фильмы жанра ""Драма"", выпущенные после 2010 года
+	FROM public."Cinema" c where c."Genre" = 'Драма' and DATE_PART('YEAR', c."Release Year") > 2010;
+
+
+
+SELECT "Id", "First name", "Last name", "Date birth", "Nationality"	--запрос, который выводит список актеров, отсортированных по фамилии в алфавитном порядке.
+	FROM public."Actors" a order by a."Last name";
+
+
+
+SELECT "Id", "Name", "Release Year", "Genre", "Rating", "Duration", "Description"	--запрос, который выводит топ 5 фильмов с самым высоким рейтингом.
+	FROM public."Cinema" c
+	order by c."Rating" desc limit 5;
+
+
+
+SELECT "Id", "Name", "Release Year", "Genre", "Rating", "Duration", "Description"  --запрос, который выводит следующую страницу (фильмы с 6 по 10) из отсортированного по рейтингу фильмов.
+	FROM public."Cinema" c
+	order by c."Rating" DESC, c."Name" ASC OFFSET 5 LIMIT 5;
