@@ -1,0 +1,15 @@
+Использовал уже имеющуюся БД из ДЗ2, только дополнил недостающими полями, где это было необходимо.
+
+1) SELECT "Id", "Name" FROM public."Cinema" c where c."Rating" is null
+
+2) SELECT "Name", coalesce(ceil("Rating"), 0) AS "Rounded_Rating" FROM public."Cinema";
+
+3) SELECT "Id", "First name", "Last name", "E-mail" FROM public."Clients" c where date_part('month', c.registration_date) = 12
+
+4) SELECT cl."Id", cl."First name", cl."Last name", cm."Name", date_part('day', o."Return date"::timestamp - o."Rent date"::timestamp) as days
+   FROM public."Clients" cl
+   join public."Orders" o on o."Client_Id" = cl."Id"
+   join public."Cinema" cm on cm."Id" = o."Cinema_Id"
+   where o."Rent date" is not null and o."Return date" is not null;
+
+5) SELECT UPPER(c."Name") FROM public."Cinema" c
