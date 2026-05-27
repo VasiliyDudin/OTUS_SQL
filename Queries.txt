@@ -1,6 +1,7 @@
 Использовал уже имеющуюся БД из ДЗ2, только дополнил недостающими полями, где это было необходимо.
 
-1) SELECT "Id", "Name" FROM public."Cinema" c where c."Rating" is null
+1) SELECT "Id", "Name", "Release Year", "Genre", coalesce("Rating", 0), "Duration", "Description"
+	FROM public."Cinema" where "Rating" is null;
 
 2) SELECT "Name", coalesce(ceil("Rating"), 0) AS "Rounded_Rating" FROM public."Cinema";
 
