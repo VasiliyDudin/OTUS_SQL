@@ -1,0 +1,48 @@
+1) 	select c."Name", a."First name", a."Last name"
+	from public."Cinema" as c
+	join public.cinema_actors ca on ca.cinema_id = c."Id"
+	join public."Actors" a on a."Id" = ca.actor_id
+	order by c."Name", a."Last name"
+
+
+2) 	select cl."First name", cl."Last name", max(o."Rent date") as date from public."Clients" cl
+	join public."Orders" o on o."Client_Id" = cl."Id"
+	group by cl."First name", cl."Last name"
+
+
+3) 	with middle as
+	(
+		select avg(c."Duration") as duration
+		FROM public."Cinema" c
+	),
+	more as
+	(
+		SELECT c."Id" as id, c."Name" as name, c."Duration" as duration
+		FROM public."Cinema" c
+		where c."Duration" > (select m.duration from middle m)
+	)
+
+	select m.id, m.name, m.duration from more m
+
+
+4)	with cntRentGenre as
+	(
+		select o."Cinema_Id" as cnId, c."Genre" as genre, o."Rent date" as rent
+		from public."Cinema" c
+		join public."Orders" o on c."Id" = o."Cinema_Id"
+		where o."Rent date" is not null
+		order by c."Id"
+	)
+
+	select c."Genre", count(cnt.rent) as countRent
+	from public."Cinema" c
+	join cntRentGenre cnt on cnt.cnId = c."Id"
+	group by c."Genre"
+	order by countRent desc
+
+
+5)	select distinct a."First name", 'Актер' as type
+	from public."Actors" a
+	union
+	select distinct c."First name", 'Клиент' as type
+	from public."Clients" c
