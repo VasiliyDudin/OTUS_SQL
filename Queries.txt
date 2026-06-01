@@ -6,8 +6,9 @@
 
 
 2) 	select cl."First name", cl."Last name", max(o."Rent date") as date from public."Clients" cl
-	join public."Orders" o on o."Client_Id" = cl."Id"
-	group by cl."First name", cl."Last name"
+	left join public."Orders" o on o."Client_Id" = cl."Id"
+	group by cl."Id", cl."First name", cl."Last name"
+	order by cl."Id"
 
 
 3) 	with middle as
