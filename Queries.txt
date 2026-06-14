@@ -1,16 +1,138 @@
-Использовал уже имеющуюся БД из ДЗ2, только дополнил недостающими полями, где это было необходимо.
+Использовал уже имеющуюся БД из прошлых ДЗ. Добавил необходимые поля к требуемым таблицам из приведенной схемы - https://github.com/OtusTeam/SQL/blob/master/schemes/cinema_hub.md
 
-1) SELECT "Id", "Name", "Release Year", "Genre", coalesce("Rating", 0), "Duration", "Description"
-	FROM public."Cinema" where "Rating" is null;
+########################## public."Cinema" ###############################################
 
-2) SELECT "Name", coalesce(ceil("Rating"), 0) AS "Rounded_Rating" FROM public."Cinema";
+ALTER TABLE public."Cinema"
+ADD COLUMN additional_info JSONB DEFAULT '{}';
 
-3) SELECT "Id", "First name", "Last name", "E-mail" FROM public."Clients" c where date_part('month', c.registration_date) = 12
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English"], "budget": 25000000, "box_office": 28341469, "director": "Frank Darabont", "awards": ["Oscar"]}'
+WHERE "Cinema"."Id" = 1
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
 
-4) SELECT cl."Id", cl."First name", cl."Last name", cm."Name", date_part('day', o."Return date"::timestamp - o."Rent date"::timestamp) as days
-   FROM public."Clients" cl
-   join public."Orders" o on o."Client_Id" = cl."Id"
-   join public."Cinema" cm on cm."Id" = o."Cinema_Id"
-   where o."Rent date" is not null and o."Return date" is not null;
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English", "Italian"], "budget": 6000000, "box_office": 246120974, "director": "Francis Ford Coppola", "awards": ["Oscar", "BAFTA"]}'
+WHERE "Cinema"."Id" = 2
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
 
-5) SELECT UPPER(c."Name") FROM public."Cinema" c
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English", "Japanese", "French"], "budget": 160000000, "box_office": 829895144, "director": "Christopher Nolan", "awards": ["Oscar", "BAFTA"]}'
+WHERE "Cinema"."Id" = 3
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English", "Spanish"], "budget": 8000000, "box_office": 213928762, "director": "Quentin Tarantino", "awards": ["Oscar"]}'
+WHERE "Cinema"."Id" = 4
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English", "Spanish"], "budget": 8000000, "box_office": 213928762, "director": "Quentin Tarantino", "awards": ["Oscar"]}'
+WHERE "Cinema"."Id" = 5
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English"], "budget": 55000000, "box_office": 678200000, "director": "Robert Zemeckis", "awards": ["Oscar", "Golden Globe"]}'
+WHERE "Cinema"."Id" = 6
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English", "Mandarin"], "budget": 185000000, "box_office": 1005455211, "director": "Christopher Nolan", "awards": ["Oscar", "Golden Globe"]}'
+WHERE "Cinema"."Id" = 7
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English"], "budget": 63000000, "box_office": 463517383, "director": "Lana Wachowski", "awards": ["Oscar"]}'
+WHERE "Cinema"."Id" = 8
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English", "French"], "budget": 72000000, "box_office": 213216216, "director": "Mel Gibson", "awards": ["Oscar", "Golden Globe"]}'
+WHERE "Cinema"."Id" = 9
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English", "Swahili"], "budget": 45000000, "box_office": 968483777, "director": "Roger Allers", "awards": ["Oscar"]}'
+WHERE "Cinema"."Id" = 10
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English"], "budget": 25000000, "box_office": 28341469, "director": "Frank Darabont", "awards": ["Oscar"]}'
+WHERE "Cinema"."Id" = 11
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English", "Italian"], "budget": 6000000, "box_office": 246120974, "director": "Francis Ford Coppola", "awards": ["Oscar", "BAFTA"]}'
+WHERE "Cinema"."Id" = 12
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English", "German"], "budget": 28000000, "box_office": 141603197, "director": "John McTiernan", "awards": ["Oscar"]}'
+WHERE "Cinema"."Id" = 13
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+UPDATE public."Cinema"
+SET additional_info = '{"languages": ["English"], "budget": 30000000, "box_office": 373554033, "director": "John Lasseter", "awards": ["Oscar"]}'
+WHERE "Cinema"."Id" = 14
+RETURNING "Cinema"."Id", "Cinema"."additional_info";
+
+########################## public."Clients" ###############################################
+
+ALTER TABLE public."Clients"
+ADD COLUMN preferences JSONB DEFAULT '{}';
+
+UPDATE public."Clients"
+SET preferences = '{"preferred_genres": ["Action", "Sci-Fi"], "preferred_actors": ["Leonardo DiCaprio"], "newsletter": true, "notifications": {"email": true, "sms": false}}'
+WHERE "Clients"."Id" = 1
+RETURNING "Clients"."Id", "Clients"."preferences";
+
+UPDATE public."Clients"
+SET preferences = '{"preferred_genres": ["Drama"], "preferred_actors": ["Scarlett Johansson"], "newsletter": false, "notifications": {"email": false, "sms": true}}'
+WHERE "Clients"."Id" = 2
+RETURNING "Clients"."Id", "Clients"."preferences";
+
+UPDATE public."Clients"
+SET preferences = '{"preferred_genres": ["Comedy", "Romance"], "preferred_actors": ["Brad Pitt"], "newsletter": true, "notifications": {"email": true, "sms": true}}'
+WHERE "Clients"."Id" = 3
+RETURNING "Clients"."Id", "Clients"."preferences";
+
+UPDATE public."Clients"
+SET preferences = '{"preferred_genres": ["Action"], "preferred_actors": ["Tom Cruise"], "newsletter": true, "notifications": {"email": false, "sms": false}}'
+WHERE "Clients"."Id" = 4
+RETURNING "Clients"."Id", "Clients"."preferences";
+
+UPDATE public."Clients"
+SET preferences = '{"preferred_genres": ["Sci-Fi", "Fantasy"], "preferred_actors": ["Robert Downey Jr."], "newsletter": false, "notifications": {"email": true, "sms": false}}'
+WHERE "Clients"."Id" = 5
+RETURNING "Clients"."Id", "Clients"."preferences";
+
+UPDATE public."Clients"
+SET preferences = '{"preferred_genres": ["Animation"], "preferred_actors": ["Chris Pratt"], "newsletter": true, "notifications": {"email": true, "sms": true}}'
+WHERE "Clients"."Id" = 6
+RETURNING "Clients"."Id", "Clients"."preferences";
+
+
+########################## Task DZ ###############################################
+
+1) SELECT c."Name", jsonb_path_query(c.additional_info, '$.languages') as languages FROM public."Cinema" as c;
+2) SELECT c."Name", jsonb_path_query(c.additional_info, '$.budget ? (@ > 100000000)') as languages FROM public."Cinema" as c
+3) SELECT c."Id", jsonb_build_object('full_name', c."First name" || ' ' || c."Last name",
+								'contact', jsonb_build_object( 'E-mail', c."E-mail", 'Phone', c."Phone")) as JSON_Obj 
+   FROM public."Clients" as c
+
+4) UPDATE public."Clients"
+   SET preferences = jsonb_set(
+    			preferences,
+    			'{preferred_genres}',
+    			COALESCE(preferences->'preferred_genres', '[]'::jsonb) || '"Drama"'::jsonb
+   )
+   WHERE preferences->>'newsletter' = 'true';
+
+5) SELECT c."Genre",
+    	ROUND(AVG((c.additional_info->>'budget')::NUMERIC), 2) AS avg_budget,
+    	COUNT(c.*) AS films_count
+   FROM public."Cinema" as c
+   GROUP BY c."Genre"
+   ORDER BY avg_budget DESC;
+
+
+
