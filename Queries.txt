@@ -1,5 +1,59 @@
-1) SELECT id, name, ST_X(location) as X, ST_Y(location) as Y FROM "PostGIS".landmarks;
-2) SELECT id FROM "PostGIS".routes where ST_DWithin(start_location::geography, ST_SetSRID(ST_MakePoint(2.3522, 48.8566), 4326)::geography, 5000);
-3) SELECT id, name FROM "PostGIS".landmarks WHERE ST_Within(location, (SELECT boundary FROM "PostGIS".landmarks WHERE id = 2));
-4) INSERT INTO "PostGIS".landmarks (name, location, boundary) VALUES ('Музей Луи Виттона', ST_MakePoint(2.349014, 48.864716), null)
-5) SELECT ST_Length(route::geography) as length FROM "PostGIS".routes where id = 1
+############################# Представления (Views) #######################################
+
+1) CREATE OR REPLACE VIEW CustomerMovieRentalView
+AS
+SELECT cl."Id" as Client_ID, cl."First name", cl."Last name", cl."Phone", cm."Name",
+	date_part('day', o."Return date"::timestamp - o."Rent date"::timestamp) as rent_days,
+	o."Rent date", o."Return date"
+	FROM public."Clients" as cl
+	left join public."Orders" as o on o."Client_Id" = cl."Id"
+	left join public."Cinema" as cm on cm."Id" = o."Cinema_Id"
+	WHERE o."Return date" IS NOT NULL;
+
+2) SELECT distinct(c."Name"), c.rent_days
+	FROM public.customermovierentalview c
+	left join public."Orders" as o on o."Client_Id" = c.client_id
+	WHERE c."Rent date" >= '2022-03-01'::date AND c."Rent date" < '2022-04-01'::date;
+
+
+
+############################## Триггеры (Triggers) ########################################
+
+1) CREATE OR REPLACE FUNCTION set_date()
+   RETURNS TRIGGER AS $$
+   BEGIN
+    	IF NEW."Rent date" IS NULL THEN
+        	NEW."Rent date" = CURRENT_DATE;
+    	END IF;
+    	RETURN NEW;
+   END;
+   $$ LANGUAGE plpgsql;
+
+
+   CREATE TRIGGER trg_set_date
+   BEFORE INSERT ON public."Orders"
+   FOR EACH ROW
+   EXECUTE FUNCTION set_date();
+
+2) CREATE OR REPLACE FUNCTION set_lock()
+   RETURNS TRIGGER AS $$
+   DECLARE
+	rent_cnt INTEGER;
+   BEGIN
+    	SELECT COUNT(*) INTO rent_cnt
+    	FROM public."Orders"
+    	WHERE "Cinema_Id" = OLD."Id";
+    
+    	IF rent_cnt > 0 THEN
+        	RAISE EXCEPTION 'Невозможно удалить фильм: он используется в аренде (записей: %)', rent_cnt;
+    	END IF;
+    
+    	RETURN OLD;
+   END;
+   $$ LANGUAGE plpgsql;
+
+
+   CREATE TRIGGER trg_not_deleted
+   BEFORE DELETE ON public."Cinema"
+   FOR EACH ROW
+   EXECUTE FUNCTION set_lock();
