@@ -57,3 +57,17 @@ SELECT cl."Id" as Client_ID, cl."First name", cl."Last name", cl."Phone", cm."Na
    BEFORE DELETE ON public."Cinema"
    FOR EACH ROW
    EXECUTE FUNCTION set_lock();
+
+############################## Последовательности (sequence) ########################################
+
+1) CREATE SEQUENCE IF NOT EXISTS
+   actor_sequence
+   AS bigint
+   START WITH 1000
+   INCREMENT 1
+
+2) INSERT INTO public."Actors" ("Id", "First name", "Last name", "Date birth", "Nationality")
+   VALUES (nextval('actor_sequence'), 'Иван', 'Иванов', '1990-01-01', 'Rus');
+
+3) SELECT MAX("Id") FROM public."Actors";
+   ALTER SEQUENCE actor_sequence RESTART WITH 1020;
