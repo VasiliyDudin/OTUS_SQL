@@ -1,73 +1,33 @@
-############################# Представления (Views) #######################################
+1) create or replace function GetMovieDurationInHours(p_cinema_id  int)
+returns numeric(10, 2)
+as $$
+declare
+	v_duration numeric := 0.0;
+	v_name_cinema text;
+begin
 
-1) CREATE OR REPLACE VIEW CustomerMovieRentalView
-AS
-SELECT cl."Id" as Client_ID, cl."First name", cl."Last name", cl."Phone", cm."Name",
-	date_part('day', o."Return date"::timestamp - o."Rent date"::timestamp) as rent_days,
-	o."Rent date", o."Return date"
-	FROM public."Clients" as cl
-	left join public."Orders" as o on o."Client_Id" = cl."Id"
-	left join public."Cinema" as cm on cm."Id" = o."Cinema_Id"
-	WHERE o."Return date" IS NOT NULL;
+	select ROUND((p."Duration"/60.0)::numeric, 2), p."Name" into v_duration, v_name_cinema
+	from public."Cinema" as p where "Id" = p_cinema_id;
 
-2) SELECT distinct(c."Name"), c.rent_days
-	FROM public.customermovierentalview c
-	left join public."Orders" as o on o."Client_Id" = c.client_id
-	WHERE c."Rent date" >= '2022-03-01'::date AND c."Rent date" < '2022-04-01'::date;
+	raise notice 'Продолжительность фильма - % составляет - % часов.', v_name_cinema, v_duration;
 
-
-
-############################## Триггеры (Triggers) ########################################
-
-1) CREATE OR REPLACE FUNCTION set_date()
-   RETURNS TRIGGER AS $$
-   BEGIN
-    	IF NEW."Rent date" IS NULL THEN
-        	NEW."Rent date" = CURRENT_DATE;
-    	END IF;
-    	RETURN NEW;
-   END;
-   $$ LANGUAGE plpgsql;
+	return v_duration;
+end;
+$$ language plpgsql;
 
 
-   CREATE TRIGGER trg_set_date
-   BEFORE INSERT ON public."Orders"
-   FOR EACH ROW
-   EXECUTE FUNCTION set_date();
-
-2) CREATE OR REPLACE FUNCTION set_lock()
-   RETURNS TRIGGER AS $$
-   DECLARE
-	rent_cnt INTEGER;
-   BEGIN
-    	SELECT COUNT(*) INTO rent_cnt
-    	FROM public."Orders"
-    	WHERE "Cinema_Id" = OLD."Id";
-    
-    	IF rent_cnt > 0 THEN
-        	RAISE EXCEPTION 'Невозможно удалить фильм: он используется в аренде (записей: %)', rent_cnt;
-    	END IF;
-    
-    	RETURN OLD;
-   END;
-   $$ LANGUAGE plpgsql;
-
-
-   CREATE TRIGGER trg_not_deleted
-   BEFORE DELETE ON public."Cinema"
-   FOR EACH ROW
-   EXECUTE FUNCTION set_lock();
-
-############################## Последовательности (sequence) ########################################
-
-1) CREATE SEQUENCE IF NOT EXISTS
-   actor_sequence
-   AS bigint
-   START WITH 1000
-   INCREMENT 1
-
-2) INSERT INTO public."Actors" ("Id", "First name", "Last name", "Date birth", "Nationality")
-   VALUES (nextval('actor_sequence'), 'Иван', 'Иванов', '1990-01-01', 'Rus');
-
-3) SELECT MAX("Id") FROM public."Actors";
-   ALTER SEQUENCE actor_sequence RESTART WITH 1020;
+2) create or replace function GetMoviesByDirector(p_director_name text)
+ returns table(Name_cinema text, Release_Year int, Genre text)
+as $$
+declare
+begin
+ 	return query
+    select 
+        p."Name",
+        EXTRACT(YEAR FROM p."Release Year")::INT,
+        p."Genre"
+    from public."Cinema" as p
+    where p.additional_info->>'director' = p_director_name;
+	
+end;
+$$ language plpgsql;
