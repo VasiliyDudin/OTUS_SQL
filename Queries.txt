@@ -1,33 +1,66 @@
-1) create or replace function GetMovieDurationInHours(p_cinema_id  int)
-returns numeric(10, 2)
-as $$
-declare
-	v_duration numeric := 0.0;
-	v_name_cinema text;
-begin
+1) CREATE OR REPLACE PROCEDURE public.AddNewMovie(
+    IN p_cinemae_name TEXT,
+    IN p_new_release_year DATE,
+    OUT p_result BOOL
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    cnt_films INT;
+BEGIN
+    SELECT COUNT(*) INTO cnt_films FROM public."Cinema"
+    WHERE "Name" = p_cinemae_name AND "Release Year" = p_new_release_year;
 
-	select ROUND((p."Duration"/60.0)::numeric, 2), p."Name" into v_duration, v_name_cinema
-	from public."Cinema" as p where "Id" = p_cinema_id;
+    IF cnt_films = 0 THEN
+        INSERT INTO public."Cinema" ("Name", "Release Year") VALUES (p_cinemae_name, p_new_release_year);
+        p_result := TRUE;
+    ELSE
+        RAISE NOTICE 'Дубликат, не допускается ! Уже имеется фильм с названием - % и датой релиза - % в БД', p_cinemae_name, p_new_release_year;
+        p_result := FALSE;
+    END IF;
+END;
+$$;
 
-	raise notice 'Продолжительность фильма - % составляет - % часов.', v_name_cinema, v_duration;
 
-	return v_duration;
-end;
-$$ language plpgsql;
+2) CREATE OR REPLACE PROCEDURE public.GetCustomerRentalCount(
+	IN customer_id INT,
+    OUT p_count_films INT,
+    OUT p_count_rents INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    SELECT COALESCE(COUNT(DISTINCT "Cinema_Id"), 0) INTO p_count_films FROM public."Orders" WHERE "Client_Id" = customer_id AND "Return date" IS NOT NULL;
+
+    SELECT COALESCE(COUNT("Cinema_Id"), 0) INTO p_count_rents FROM public."Orders" WHERE "Client_Id" = customer_id;
+END;
+$$;
 
 
-2) create or replace function GetMoviesByDirector(p_director_name text)
- returns table(Name_cinema text, Release_Year int, Genre text)
-as $$
-declare
-begin
- 	return query
-    select 
-        p."Name",
-        EXTRACT(YEAR FROM p."Release Year")::INT,
-        p."Genre"
-    from public."Cinema" as p
-    where p.additional_info->>'director' = p_director_name;
-	
-end;
-$$ language plpgsql;
+3) CREATE OR REPLACE PROCEDURE public.UpdateMovieRating(
+ IN p_cinemae_id int,
+ IN p_new_rating numeric,
+ OUT p_result bool
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    exist_id INT;
+BEGIN
+	SELECT COUNT("Id") INTO exist_id FROM public."Cinema" WHERE "Id" = p_cinemae_id;
+
+	IF exist_id = 0 THEN
+        	p_result := FALSE;
+        	RAISE NOTICE 'Фильм с ID % не найден', p_cinemae_id;
+        	RETURN;
+    	END IF;
+
+	IF p_new_rating >= 0.0 AND p_new_rating <= 10.0 THEN
+		UPDATE public."Cinema" SET "Rating" = p_new_rating WHERE "Id" = p_cinemae_id;
+		p_result := TRUE;
+	ELSE
+		p_result := FALSE;
+		RAISE NOTICE 'Недопустимое значение рейтинга (интервал от 0 до 10) - %', p_new_rating;
+	END IF;
+END;
+$$;
