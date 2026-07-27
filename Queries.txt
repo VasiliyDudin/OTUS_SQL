@@ -1,75 +1,45 @@
-Задание выполнял в Postgres v. 17
-Мой план запроса (с учетом названий моей таблицы и колонок) -
+1) 
+CREATE OR REPLACE PROCEDURE insert_clients(cnt INT, batch_size INT DEFAULT 1000)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+	first_name TEXT;
+    last_name TEXT;
+    email TEXT;
+    phone TEXT;
+    start_cnt INT := 0;
+BEGIN
+    WHILE start_cnt < cnt LOOP
+		first_name := 'Клиент ' || start_cnt;
+        last_name := 'Фамилия ' || start_cnt;
+        email := CONCAT(MD5(RANDOM()::TEXT), '@yandex.ru');
+        phone := LPAD(FLOOR(RANDOM() * 10000000000)::TEXT, 10, '0');
+		
+        INSERT INTO public."Clients" ("First name", "Last name", "E-mail", "Phone", "Address")
+        VALUES (first_name, last_name, email, phone, NULL);
 
+        start_cnt := start_cnt + 1;
 
-EXPLAIN ANALYZE
-SELECT 
-    cl."First name", 
-    cl."Last name", 
-    cm."Name",
-    COUNT(r."Id") AS rental_count, 
-    MAX(r."Rent date") AS last_rental_date
-FROM 
-    public."Clients" as cl
-JOIN 
-    public."Orders" as r ON cl."Id" = r."Client_Id"
-JOIN 
-    public."Cinema" as cm ON r."Cinema_Id" = cm."Id"
-WHERE 
-    cm."Genre" = 'Боевик'
-    AND r."Rent date" BETWEEN '2024-01-01' AND '2024-12-31'
-GROUP BY 
-    cl."First name",
-    cl."Last name", 
-    cm."Name"
-ORDER BY 
-    rental_count DESC, 
-    last_rental_date DESC
-LIMIT 10;
+        IF start_cnt % batch_size = 0 THEN
+            COMMIT;
+        END IF;
+    END LOOP;
 
-Результат плана запроса, прикрепляю в отдельном файле.
+    COMMIT;
+END $$;
 
-Узкие места запроса -
-Полное сканирование Seq Scan по таблицам - "Orders", "Cinema", "Clients" нужно для используемых столбцов в условии запроса и в JOIN-ах сделать индексы
-Неверный порядок - public."Cinema" as cm ON r."Cinema_Id" = cm."Id"
-Исправить сам запрос
-
-CREATE INDEX idx_orders_rent_date ON public."Orders" ("Rent date");
-
-CREATE INDEX idx_orders_cinema_id ON public."Orders" ("Cinema_Id");
-
-CREATE INDEX idx_cinema_genre ON public."Cinema" ("Genre");
-
-CREATE INDEX idx_orders_client_id ON public."Orders" ("Client_Id");
+Вызов - CALL insert_clients(1000, 100);
 
 
 
-EXPLAIN ANALYZE
-SELECT 
-    cl."First name", 
-    cl."Last name", 
-    cm."Name",
-    COUNT(od."Id") AS rental_count, 
-    MAX(od."Rent date") AS last_rental_date
-FROM 
-    public."Clients" as cl
-JOIN 
-    public."Orders" as od ON cl."Id" = od."Client_Id"
-JOIN 
-    public."Cinema" as cm ON cm."Id" = od."Cinema_Id"
-WHERE 
-    od."Rent date" BETWEEN '2024-01-01' AND '2024-12-31' 
-    AND cm."Genre" = 'Боевик'
-GROUP BY 
-    cl."First name",
-    cl."Last name", 
-    cm."Name"
-ORDER BY 
-    rental_count DESC, 
-    last_rental_date DESC
-LIMIT 10;
+2) CREATE INDEX idx_rating ON public."Cinema" ("Rating")
+   CREATE INDEX idx_release_year ON public."Cinema" ("Release Year");
 
-После добавления индексов и изменения самого запроса,
-можно увидеть существенно меньшее время выполнения как общее так и по параметрам - Planning Time и Execution Time,
-также цифры значительно меньше в ->  Nested Loop
-также можно увидеть отсутствие -> Materialize, что как я понимаю, тоже влияет на производительность
+--Обновление рейтинга
+
+BEGIN;
+
+Update public."Cinema" set "Rating" = "Rating" + 0.2 where EXTRACT(YEAR FROM "Release Year") IS NOT NULL
+  AND "Rating" IS NOT NULL AND EXTRACT(YEAR FROM "Release Year") > 2015;
+
+COMMIT;
