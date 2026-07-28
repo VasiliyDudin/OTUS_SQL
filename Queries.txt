@@ -40,6 +40,6 @@ END $$;
 BEGIN;
 
 Update public."Cinema" set "Rating" = "Rating" + 0.2 where EXTRACT(YEAR FROM "Release Year") IS NOT NULL
-  AND "Rating" IS NOT NULL AND "Release Year" > '2015-12-31';
+  AND "Rating" IS NOT NULL AND "Release Year" > '2015-12-31'::DATE;
 
 COMMIT;
