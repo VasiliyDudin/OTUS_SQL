@@ -1,0 +1,16 @@
+name;official_name;family;genus;description;conservation_status;endemic
+Роза чайно-гибридная;Rosa × hybrida;Rosaceae;Rosa;Классическая роза с крупными ароматными цветами для парковых ансамблей.;LC;false
+Роза шрабфлора;Rosa shrub;Rosaceae;Rosa;Кустовая роза с обильным цветением, устойчивая к морозам.;LC;false
+Роза плетистая;Rosa climbing;Rosaceae;Rosa;Плетистая роза для вертикального озеленения арок и беседок.;LC;false
+Лилия белая;Lilium candidum;Liliaceae;Lilium;Белая лилия с нежным ароматом, символ чистоты.;VU;false
+Тюльпан красный;Tulipa gesneriana;Liliaceae;Tulipa;Весенний цветок с яркими крупными бутонами.;LC;false
+Анемона синяя;Anemone coronaria;Ranunculaceae;Anemone;Нежный многолетник с яркими звездчатыми цветами.;LC;false
+Лаванда французская;Lavandula angustifolia;Lamiaceae;Lavandula;Южный кустарник с ароматными сиреневыми соцветиями.;LC;false
+Кипарис вечнозеленый;Cupressus sempervirens;Cupressaceae;Cupressus;Вечнозеленое хвойное дерево, символ Средиземноморья.;LC;false
+Плющ обыкновенный;Hedera helix;Araliaceae;Hedera;Вечнозеленая лиана для вертикального озеленения фасадов.;LC;false
+Кактус шаровидный;Cactaceae;Cactaceae;Cactus;Сухолюбивый колючий многолетник с разнообразием форм.;LC;false
+Олива европейская;Olea europaea;Oleaceae;Olea;Вечнозеленое дерево с серебристыми листьями и плодами.;LC;false
+Мискантус китайский;Miscanthus sinensis;Poaceae;Miscanthus;Декоративный злак с серебристыми метелками для садов.;LC;false
+Бамбук древовидный;Bambusa vulgaris;Poaceae;Bambusa;Быстрорастущий вечнозеленый злак, символ Китая.;LC;false
+Гиацинт синий;Hyacinthus orientalis;Asparagaceae;Hyacinthus;Луковичный многолетник с душистыми колосовидными соцветиями.;LC;false
+Орхидея фаленопсис;Orchidaceae;Orchidaceae;Orchid;Экзотический эпифит с разнообразием окраски и форм.;EN;false
