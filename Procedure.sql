@@ -137,7 +137,7 @@ BEGIN
         FROM %L
         DELIMITER %L
         CSV HEADER
-    ', p_delimiter);
+    ', p_file_path, p_delimiter);
 
     -- Обрабатываем каждую строку
     FOR v_employee_record IN
@@ -241,7 +241,7 @@ BEGIN
         FROM %L
         DELIMITER %L
         CSV HEADER
-    ', p_delimiter);
+    ', p_file_path, p_delimiter);
 
     -- Обрабатываем каждую строку
     FOR v_customer_record IN

@@ -236,11 +236,9 @@ CREATE INDEX idx_plant_directory_origin_location_id ON Plant_directory(Origin_lo
 CREATE INDEX idx_plant_characteristics_plant_id ON Plant_characteristics(Plant_id);
 CREATE INDEX idx_instructions_care_plant_id ON Instructions_care(Plant_id);
 CREATE INDEX idx_products_plant_id ON Products(Plant_id);
-CREATE INDEX idx_products_article_number ON Products(Article_number);
 CREATE INDEX idx_orders_customer_id ON Orders(Customer_id);
 CREATE INDEX idx_orders_delivery_id ON Orders(Delivery_id);
 CREATE INDEX idx_orders_assigned_employee_id ON Orders(Assigned_employee_id);
-CREATE INDEX idx_orders_products_orders_id ON Orders_Products(Orders_id);
 CREATE INDEX idx_orders_products_products_id ON Orders_Products(Products_id);
 CREATE INDEX idx_logistics_order_id ON Logistics(Order_id);
 CREATE INDEX idx_logistics_employee_id ON Logistics(Employee_id);

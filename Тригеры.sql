@@ -1,6 +1,6 @@
 -- Создадим 3 тригера на основе имеющийся процедуры - proc_recalc_order_total, которая пересчитывает конечную стоимость всего заказа
 -- Функция-обёртка для процедуры, что-бы можно было использовать её в тригерах
-CREATE OR REPLACE FUNCTION recalc_order_total()
+CREATE OR REPLACE FUNCTION recalc_order_total_from_products()
 RETURNS TRIGGER AS $$
 DECLARE
     v_order_id BIGINT;
@@ -18,16 +18,26 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION recalc_order_total_from_orders()
+RETURNS TRIGGER AS $$
+BEGIN
+    CALL proc_recalc_order_total(NEW.Id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
 -- Триггеры
 CREATE TRIGGER trg_recalc_after_insert
 AFTER INSERT ON Orders_Products
-FOR EACH ROW EXECUTE FUNCTION recalc_order_total();
+FOR EACH ROW EXECUTE FUNCTION recalc_order_total_from_products();
 
 CREATE TRIGGER trg_recalc_after_delete
 AFTER DELETE ON Orders_Products
-FOR EACH ROW EXECUTE FUNCTION recalc_order_total();
+FOR EACH ROW EXECUTE FUNCTION recalc_order_total_from_products();
 
 CREATE TRIGGER trg_recalc_on_delivery_change
 AFTER UPDATE OF Delivery_id ON Orders
 FOR EACH ROW
-EXECUTE FUNCTION recalc_order_total();
+EXECUTE FUNCTION recalc_order_total_from_orders();
